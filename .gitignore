@@ -1,0 +1,10 @@
+bin/
+CVS/
+dist/
+CVS
+hs_err_pid*
+*.class
+.classpath
+build.xml
+META-INF
+/target

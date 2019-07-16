@@ -1,0 +1,52 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+  <persistence-unit name="odocon-rent-registration" transaction-type="RESOURCE_LOCAL">
+  	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+ 	<class>com.gt.odocon.rent.nonverified.entities.impl.NonVerifiedDriver</class>
+ 	<class>com.gt.odocon.rent.nonverified.entities.impl.NonVerifiedVehicle</class>
+ 	<class>com.gt.odocon.rent.nonverified.entities.impl.NonVerifiedDriverVehicleAssoc</class>
+ 	<class>com.gt.odocon.rent.nonverified.entities.impl.SMSMessageStore</class>
+ 	
+  	<exclude-unlisted-classes>false</exclude-unlisted-classes>
+  	
+  	<properties>
+  		<!-- jdbc -->
+  		<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/S3Data?useSSL=false" />
+      	<property name="javax.persistence.jdbc.user" value="s3user" />
+      	<property name="javax.persistence.jdbc.password" value="s3user123" />
+      	<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+      	<!-- <property name="javax.persistence.validation.mode" value="ddl" /> -->
+      	
+      	<!-- hibernate specific -->
+      	<property name="hibernate.show_sql" value="false" />
+      	<property name="hibernate.format_sql" value="true" />
+      	<property name="hibernate.dialect" value="org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect" />
+      	<property name="hibernate.connection.autocommit" value="false" />
+      	<property name="hibernate.connection.provider_disables_autocommit" value="true" />
+      	<property name="hibernate.connection.isolation" value="READ_COMMITTED" />
+       	<property name="hibernate.hbm2ddl.auto" value="update" />
+       	
+       	<!-- c3p0 connection pool; note that based on this hibernate selected appropriate connection provider.
+       	Pls refer: http://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/Hibernate_User_Guide.html#database-connectionprovider -->
+       	<!-- using c3p0 defaults to start off; can be fine-tuned for performance -->
+       	<!-- Refer: http://www.mchange.com/projects/c3p0/#basic_pool_configuration -->
+       	<property name="hibernate.c3p0.min_size" value="4"/>
+       	<property name="hibernate.c3p0.max_size" value="128"/>
+       	<property name="hibernate.c3p0.initialPoolSize" value="4"/>
+       	<!-- acquire new connection in batch of 'n' when a pool is exhausted till it is not equal to max_size; here specifying n=4. default is 3-->
+       	<property name="hibernate.c3p0.acquire_increment" value="4"/>
+       	<property name="hibernate.c3p0.timeout" value="1800"/>
+       	<property name="hibernate.c3p0.idle_test_period" value="300"/>
+       	<property name="hibernate.c3p0.testConnectionOnCheckin" value="true"/>
+       	<!-- roughly 4 frequently used prepared statements per connection; if max connections are 15, then 15*4 = 60. can be tweaked -->
+       	<property name="hibernate.c3p0.max_statements" value="512"/>
+       	<!-- for num connections > minSize, if they remain idle for this time then closed -->
+       	<property name="hibernate.c3p0.maxIdleTimeExcessConnections" value="300"/>
+       	<!-- <property name="hibernate.c3p0.unreturnedConnectionTimeout" value="300"/>
+       	<property name="hibernate.c3p0.debugUnreturnedConnectionStackTraces" value="true"/> -->
+  	</properties>
+  </persistence-unit>
+</persistence>

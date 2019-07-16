@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Compile Vaadin Widgetset" default="compile-widgetset" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
+
+	<ivy:resolve file="ivy.xml" />
+	<ivy:cachepath pathid="ivy.deps.default" conf="default" />
+	<ivy:cachepath pathid="ivy.deps.widgetset" conf="widgetset-compile" />
+	<ivy:cachefileset setid="ivy.deps.default.fileset" conf="default" />
+
+	<path id="classpath">
+		<fileset dir="WebContent/WEB-INF/lib" erroronmissingdir="no">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="lib" erroronmissingdir="no">
+			<include name="*.jar" />
+		</fileset>
+		<path refid="ivy.deps.default" />
+	</path>
+
+	<path id="classpath.widgetset">
+		<fileset dir="WebContent/WEB-INF/lib" erroronmissingdir="no">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="lib" erroronmissingdir="no">
+			<include name="*.jar" />
+		</fileset>
+		<path refid="ivy.deps.widgetset" />
+	</path>
+
+	<target name="widgetset-init">
+		<!-- Folders -->
+		<property name="src.dir" value="src" />
+		<property name="lib.dir" value="WebContent/WEB-INF/lib" />
+		<property name="build.web.dir" value="WebContent" />
+
+		<!-- Name of the widget set -->
+		<property name="widgetset" value="com.adeona.dispatch.LeafletmapWidgetset" />
+
+		<!-- Path to the widgetset directory. Required only for -->
+		<!-- generated widget sets. Must be relative to         -->
+		<!-- $src.dir, that is, under the first entry in        -->
+		<!-- classpath.                                         -->
+		<property name="widgetset-path" value="com.adeona.dispatch" />
+
+		<!-- Target where to compile the widget set -->
+		<property name="client-side-destination" value="WebContent/VAADIN/widgetsets" />
+
+		<!-- Define if the widget set be generated automatically -->
+		<!-- from all widget sets included in the class path.    -->
+	</target>
+
+
+	<!-- Generates a combined widget set from all widget    -->
+	<!-- sets in the class path, including project sources. -->
+	<!-- Updates the configuration if it already exists.    -->
+	<target name="generate-widgetset" depends="widgetset-init" if="generate.widgetset">
+		<echo>Updating ${widgetset}...</echo>
+		<echo>Remember to define the widgetset in web.xml as follows.</echo>
+		<echo>
+            &lt;init-param&gt;
+                &lt;param-name&gt;widgetset&lt;/param-name&gt;
+                &lt;param-value&gt;${widgetset}&lt;/param-value&gt;
+            &lt;/init-param&gt;
+        </echo>
+
+		<!-- Create the directory if it does not already exist. -->
+		<mkdir dir="${src.dir}/${widgetset-path}" />
+
+		<java classname="com.vaadin.terminal.gwt.widgetsetutils.WidgetSetBuilder" failonerror="yes" fork="yes" maxmemory="512m">
+			<arg value="${widgetset}" />
+			<jvmarg value="-Xss1024k" />
+			<jvmarg value="-Djava.awt.headless=true" />
+			<classpath>
+				<pathelement path="${src.dir}" />
+				<pathelement path="${build.web.dir}/WEB-INF/classes" />
+				<pathelement location="${lib.dir}/gwt-user.jar" />
+				<pathelement location="${lib.dir}/gwt-dev.jar" />
+				<fileset dir="${build.web.dir}/WEB-INF/lib/">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="${lib.dir}">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- Compiles the widget set using the GWT compiler. -->
+	<target name="compile-widgetset" depends="widgetset-init, generate-widgetset">
+		<echo>Compiling ${widgetset} into ${client-side-destination} directory...</echo>
+		<java classname="com.google.gwt.dev.Compiler"
+					  failonerror="yes" fork="yes">
+					<arg value="-war" />
+					<arg value="WebContent/VAADIN/widgetsets" />
+					<arg value="com.adeona.dispatch.LeafletmapWidgetset" />
+					<arg value="-logLevel"/>
+					<arg value="DEBUG"/>
+					<arg value="-strict"/>
+		            <jvmarg value="-Xmx1024M"/>
+		            <jvmarg value="-Djava.awt.headless=true"/>
+					<classpath>
+						<pathelement path="src"/>
+						<pathelement path="WebContent"/>
+						<path refid="classpath.widgetset"/>
+					</classpath>
+					<sysproperty key="vFailIfNotSerializable" value="${failifnotserializable}" />
+				</java>
+	</target>
+</project>

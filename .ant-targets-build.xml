@@ -1,0 +1,6 @@
+all
+build
+buildLocalWar
+buildWar
+clean
+init
